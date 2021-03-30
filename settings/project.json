@@ -44,5 +44,6 @@
     "live": {
       "enable": false
     }
-  }
+  },
+  "start-scene": "08fad9d8-3f31-48a2-a041-764d82395aea"
 }

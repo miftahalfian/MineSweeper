@@ -81,6 +81,10 @@ cc.Class({
         cc.audioEngine.playEffect(this.touchAudio, false);
     },
 
+    infoClick () {
+        cc.director.loadScene("Info");
+    },
+
     initiateArray (total_col, total_row, total_mine) {
         this.reloadBtn.active = true;
         this.totalCol = total_col;

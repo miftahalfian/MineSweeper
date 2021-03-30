@@ -42,8 +42,6 @@ var Cell = cc.Class({
             this.node.color = this.openColor;
         }
         else this.node.color = this.closedColor;
-
-        cc.log("Di refresh cuy!!!");
     },
 
     start () {
@@ -101,7 +99,7 @@ var Cell = cc.Class({
             this.mine.scale = 0;
 
             this.mine.runAction(cc.sequence(
-                cc.delayTime(time),
+                cc.delayTime(time + 0.1),
                 cc.scaleTo(0.2, this.node.width / 100).easing(cc.easeBackOut())
             ));
         }
@@ -120,7 +118,7 @@ var Cell = cc.Class({
                 this.label.node.scale = 0;
 
                 this.label.node.runAction(cc.sequence(
-                    cc.delayTime(time),
+                    cc.delayTime(time + 0.1),
                     cc.scaleTo(0.2, this.node.width / 100).easing(cc.easeBackOut())
                 ));
             }
