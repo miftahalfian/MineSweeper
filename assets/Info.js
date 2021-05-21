@@ -35,7 +35,7 @@ cc.Class({
     },
 
     infoClick () {
-        cc.director.loadScene("game");
+        cc.director.loadScene("Game");
     },
 
     // update (dt) {},

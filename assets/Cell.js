@@ -20,19 +20,27 @@ var Cell = cc.Class({
 
     ctor () {
         this.isClick = false;
-        this.clickCount = 0;
+        this.clickTime = 0;
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        var clickEventHandler = new cc.Component.EventHandler();
+        /*var clickEventHandler = new cc.Component.EventHandler();
         clickEventHandler.target = this.node; // This node is the node to which your event handler code component belongs
         clickEventHandler.component = "Cell";// This is the code file name
         clickEventHandler.handler = "buttonClick";
 
         var button = this.node.getComponent(cc.Button);
-        button.clickEvents.push(clickEventHandler);
+        button.clickEvents.push(clickEventHandler);*/
+
+        if (cc.sys.isMobile) {
+            this.node.on("touchstart", this.onTouchStart, this, true);
+            this.node.on("touchend", this.onTouchEnd, this, true);
+        }
+        else {
+            this.node.on("mouseup", this.onMouseUp, this, true);
+        }
 
         this.node.color = this.closedColor;
     },
@@ -48,31 +56,35 @@ var Cell = cc.Class({
 
     },
 
-    buttonClick () {
+    onTouchStart (event) {
         if (this.isOpen) return;
 
         this.isClick = true;
-        this.clickCount++;
+    },
 
-        if (this.clickCount == 1) {
-            this.node.runAction(cc.sequence(
-                cc.delayTime(0.3),
-                cc.callFunc(this.singleTap, this)
-            ));
+    onTouchEnd (event) {
+        if (this.clickTime < 0.3) {
+            this.singleTap();
         }
-        else {
-            this.node.stopAllActions();
-            this.doubleTap();
+        
+        this.clickTime = 0;
+        this.isClick = false;
+    },
+
+    onMouseUp (event) {
+        if (event.getButton() == cc.Event.EventMouse.BUTTON_LEFT) {
+            this.singleTap();
+        }
+        else if (event.getButton() == cc.Event.EventMouse.BUTTON_RIGHT) {
+            this.longPress();
         }
     },
 
     singleTap () {
-        this.clickCount = 0;
         this.node.emit("klik", this);
     },
 
-    doubleTap () {
-        this.clickCount = 0;
+    longPress () {
         if (!this.isOpen) {
             this.setFlag(!this.isFlag);
         }
@@ -85,12 +97,9 @@ var Cell = cc.Class({
         if (this.isMine) {
             this.node.runAction(cc.sequence(
                 cc.delayTime(time),
-                cc.callFunc(() => {
-                    cc.audioEngine.playEffect(this.flipSound, false);
-                }, this),
                 cc.tintTo(0.2, 255, 0, 0),
                 cc.callFunc(() => {
-                    this.explosionParticle.resetSystem();
+                    if (!cc.sys.isMobile) this.explosionParticle.resetSystem();
                     cc.audioEngine.playEffect(this.explosionSound, false);
                 }, this)
             ));
@@ -151,6 +160,15 @@ var Cell = cc.Class({
         this.flag.scale = scale;
         this.mine.scale = scale;
         this.label.node.scale = scale;
-    }
-    // update (dt) {},
+    },
+    
+    update (dt) {
+        if (this.isClick) {
+            this.clickTime += dt;
+            if (this.clickTime > 0.3) {
+                this.isClick = false;
+                this.longPress();
+            }
+        }
+    },
 });

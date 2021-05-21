@@ -128,11 +128,6 @@ cc.Class({
         let left =  (cellSize/2) + dw;
         let top  = -(cellSize/2) - dh;
 
-        cc.log("dw: " + dw);
-        cc.log("dh: " + dh);
-        cc.log("left: " + left);
-        cc.log("top: " + top);
-
         var counter = 0;
 
         for (var y = 0; y < total_row; y++) {
@@ -145,11 +140,13 @@ cc.Class({
 
                 let dist = Math.sqrt((x * x) + (y * y));
 
-                cellNode.scale = 0;
-                cellNode.runAction(cc.sequence(
-                    cc.delayTime(dist * 0.1),
-                    cc.scaleTo(0.1, 1)
-                ));
+                if (!cc.sys.isMobile) {
+                    cellNode.scale = 0;
+                    cellNode.runAction(cc.sequence(
+                        cc.delayTime(dist * 0.1),
+                        cc.scaleTo(0.1, 1)
+                    ));
+                }
 
                 cellNode.on("klik", this.cellClick, this);
                 cellNode.on("flagged", this.cellFlagged, this);
@@ -254,9 +251,8 @@ cc.Class({
     },
 
     cellClick (cell) {
+        cc.audioEngine.playEffect(this.touchAudio, false);
         if (this.finished) return;
-
-        cc.log(cell);
 
         let x = cell.x;
         let y = cell.y;
@@ -264,9 +260,6 @@ cc.Class({
         if (!this.hasSetupMinefield) {
             this.setupMineField(x, y);
         }
-
-        cc.log("clicked on: " + x + "," + y);
-        cc.log("isMine? " + cell.isMine);
 
         if (cell.isFlag) return;
 
@@ -354,7 +347,6 @@ cc.Class({
         else this.lblWinTime.string = "--:--";
 
         let bestTime = cc.sys.localStorage.getItem(this.levelName + "_terbaik");
-        cc.log("best time: " + bestTime);
 
         if (isNaN(bestTime) || bestTime == null) {
             if (isWin) {
@@ -381,7 +373,7 @@ cc.Class({
 
     menuClick () {
         cc.audioEngine.playEffect(this.touchAudio, false);
-        cc.director.loadScene("game");
+        cc.director.loadScene("Game");
     },
 
     revealAllMines () {
@@ -395,8 +387,10 @@ cc.Class({
             }
         }
 
+        let time = 2 + dist * 0.25;
+
         this.node.runAction(cc.sequence(
-            cc.delayTime(2 + dist * 0.2),
+            cc.delayTime(time),
             cc.callFunc(() => {
                 this.showWin(false);
             }, this)
